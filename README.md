@@ -1,10 +1,22 @@
 # 📂 Cloud Contacts API
 > A Production-Ready Offline-First Contact Management System Built with Flutter.
 
-[![Flutter Version](https://shields.io)](https://flutter.dev)
-[![Database](https://shields.io)](https://pub.dev)
-[![Platform](https://shields.io)](#)
-[![Developer](https://shields.io)](https://github.com)
+![Flutter](https://img.shields.io/badge/Flutter-3.x-blue?logo=flutter)
+![Dart](https://img.shields.io/badge/Dart-2.x-blue?logo=dart)
+![SQLite](https://img.shields.io/badge/SQLite-LocalDB-green?logo=sqlite)
+
+---
+
+## 📸 Application Preview
+
+
+| 🏠 Contact Dashboard | 📝 Profile Editor |
+| :---: | :---: |
+| ![Dashboard Screen](assets/images/dashboard.png) | ![Edit Contact](assets/images/edit_contact.png) |
+
+| 🔍 Real-time Search | 💾 Offline Persistence |
+| :---: | :---: |
+| ![Search Filter](assets/images/search.png) | ![Add Contact](assets/images/add_contact.png) |
 
 ---
 
@@ -16,7 +28,7 @@
 * **🎨 Seamless Native Splash Screen:** Features an integrated full-bleed branding welcome screen that completely handles native cold start overheads and renders edge-to-edge across all screen sizes.
 * **⚡ Real-Time Search Filter:** Includes a high-performance search algorithm that offers instantaneous contact matching from the local database, allowing users to find contacts effortlessly.
 * **📦 Native App Icon Launcher Integration:** Integrated with responsive native launcher icons optimized to fit the precise grid and display standards of Android, iOS, and Windows platforms.
-* **Smart Binary Compression:** Compresses avatar images selected via the native image picker by up to 90% at runtime, converting them into lightweight Base64 layers to prevent remote server overloads.
+* **Smart Binary Compression:** Compresses avatar images selected via the native image picker by up to 80% at runtime (`512x512` frame size), converting them into lightweight Base64 layers to prevent local cache lagging and remote server overloads.
 * **State Preservation:** Retains pipeline entries locally within the sync engine during network failures rather than dumping or losing transient state data.
 
 ---
@@ -24,6 +36,7 @@
 ## ⚙️ Data Synchronization Engine
 
 The application monitors and traces local modifications using a database-level **Sync State Machine**:
+
 
 
 | Local Status Flag | Description / Operational Behavior | Target HTTP Verb |
@@ -65,8 +78,8 @@ lib/
 │   └── user_model.dart           # Unified data schema with internal sync tracing
 ├── screens/
 │   ├── splash_screen.dart        # Full-size native-scaled application welcome layout
-│   ├── add_user_screen.dart      # Isolated cache submission view
-│   ├── edit_user_screen.dart     # Safe mapping local state update manager
+│   ├── add_user_screen.dart      # Isolated cache submission view (with optimized 512px BoxFit cropping)
+│   ├── edit_user_screen.dart     # Safe mapping local state update manager (Camera/Gallery native switcher)
 │   └── user_list_screen.dart     # Reactive contact dashboard component with Search Filter
 └── services/
     └── api_service.dart          # HTTP client layer implementing standard REST methods
@@ -113,7 +126,7 @@ lib/
 
 ## 🛠️ Technology Stack & Core Packages
 * **Core Framework:** Dart / Flutter SDK
-* **Database Layer:** `sqflite` (SQLite core transactional architecture)
+* **Database Layer:** `sqflite` (SQLite core transitional architecture)
 * **Storage Paths:** `path` (Virtual file routing wrapper)
 * **Network Handshaking:** `http` (Thread-safe HTTP network protocols interface)
 * **Connectivity Monitor:** `connectivity_plus` (Broadcast stream watcher for environment states)

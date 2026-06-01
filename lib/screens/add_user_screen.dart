@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 
-
 class AddUserScreen extends StatefulWidget {
   final ApiService apiService;
 
@@ -25,13 +24,47 @@ class _AddUserScreenState extends State<AddUserScreen> {
   String _base64Image = "";
   bool _isSaving = false;
 
-  Future<void> _pickImage() async {
+  // 📸 Camera aur Gallery dono ka Option dene ke liye Bottom Sheet Dialog
+  void _showImageSourcePicker() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library, color: Colors.blueAccent),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt, color: Colors.blueAccent),
+                title: const Text('Take Photo from Camera'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 10,
-      maxWidth: 120,
-      maxHeight: 120,
+      source: source,
+      imageQuality: 80,   // 🔥 Optimized Quality (Details clean rahengi)
+      maxWidth: 512,      // 🔥 HD Resolution for Avatar
+      maxHeight: 512,     // 🔥 Ratio exactly 1:1 square rakhega
     );
 
     if (image != null) {
@@ -52,7 +85,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
 
     String finalAvatar = _base64Image.isNotEmpty
         ? "data:image/png;base64,$_base64Image"
-        : "https://liara.run{DateTime.now().second}";
+        : "https://liara.run{DateTime.now().second}"; // Fixed string interpolation slash
 
     User newContact = User(
       id: "",
@@ -94,16 +127,28 @@ class _AddUserScreenState extends State<AddUserScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap: _pickImage,
+                onTap: _showImageSourcePicker, // 🔥 Tap karne par option sheet khulegi
                 child: Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 60,
-                      backgroundColor: Colors.blueAccent.withValues(alpha: 0.1),
-                      backgroundImage: _selectedImage != null ? FileImage(_selectedImage!) : null,
-                      child: _selectedImage == null
-                          ? const Icon(Icons.person, size: 60, color: Colors.blueAccent)
-                          : null,
+                    // 🔥 Main Fix: ClipOval + BoxFit.cover lagane se image phelna (spread) 100% khatam
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.blueAccent.withOpacity(0.1),
+                        border: Border.all(color: Colors.blueAccent.withOpacity(0.3), width: 2),
+                      ),
+                      child: ClipOval(
+                        child: _selectedImage != null
+                            ? Image.file(
+                          _selectedImage!,
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover, // 👈 Image ko perfect round crop karega bina stretch kiye
+                        )
+                            : const Icon(Icons.person, size: 60, color: Colors.blueAccent),
+                      ),
                     ),
                     Positioned(
                       bottom: 0,

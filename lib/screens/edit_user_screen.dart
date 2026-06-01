@@ -40,11 +40,47 @@ class _EditUserScreenState extends State<EditUserScreen> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
+  // 📸 Camera aur Gallery dono ka Option dene ke liye Bottom Sheet Dialog
+  void _showImageSourcePicker() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library, color: Colors.blueAccent),
+                title: const Text('Choose from Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt, color: Colors.blueAccent),
+                title: const Text('Take Photo from Camera'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 50,
+      source: source,
+      imageQuality: 80,   // 🔥 High performance compression matching Add Screen
+      maxWidth: 512,      // 🔥 1:1 Aspect ratio configuration
+      maxHeight: 512,
     );
 
     if (image != null) {
@@ -82,14 +118,19 @@ class _EditUserScreenState extends State<EditUserScreen> {
     Navigator.pop(context);
   }
 
-  ImageProvider _getAvatarImage() {
+  // 🔥 Is Render Helper ko Widget base kiya taake error safe image load ho sake
+  Widget _buildAvatarWidget() {
     if (_selectedImage != null) {
-      return FileImage(_selectedImage!);
+      return Image.file(_selectedImage!, width: 100, height: 100, fit: BoxFit.cover);
     }
 
     if (_currentAvatar.startsWith('http') || _currentAvatar.isEmpty) {
-      return NetworkImage(
+      return Image.network(
         _currentAvatar.isNotEmpty ? _currentAvatar : "https://w3schools.com",
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => const Icon(Icons.person, size: 50, color: Colors.blueAccent),
       );
     }
 
@@ -98,9 +139,14 @@ class _EditUserScreenState extends State<EditUserScreen> {
       if (cleanBase64.contains(',')) {
         cleanBase64 = cleanBase64.split(',')[1];
       }
-      return MemoryImage(base64Decode(cleanBase64.trim()));
+      return Image.memory(
+        base64Decode(cleanBase64.trim()),
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover, // 👈 Perfect native cropping inside SQLite rendering pipeline
+      );
     } catch (e) {
-      return const NetworkImage("https://w3schools.com");
+      return const Icon(Icons.person, size: 50, color: Colors.blueAccent);
     }
   }
 
@@ -111,7 +157,8 @@ class _EditUserScreenState extends State<EditUserScreen> {
       title: const Text(
         "Edit Contact",
         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent),
-        textAlign: TextAlign.center,),
+        textAlign: TextAlign.center,
+      ),
       content: _isUpdating
           ? const SizedBox(
         height: 150,
@@ -126,13 +173,21 @@ class _EditUserScreenState extends State<EditUserScreen> {
             children: [
               const SizedBox(height: 10),
               GestureDetector(
-                onTap: _pickImage,
+                onTap: _showImageSourcePicker, // 🔥 Bottom sheet callback activated
                 child: Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.blueAccent.withOpacity(0.1),
-                      backgroundImage: _getAvatarImage(),
+                    // 🔥 Fixed: ClipOval framework handles dynamic image sources with cover ratio
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.blueAccent.withOpacity(0.1),
+                        border: Border.all(color: Colors.blueAccent.withOpacity(0.3), width: 2),
+                      ),
+                      child: ClipOval(
+                        child: _buildAvatarWidget(),
+                      ),
                     ),
                     const Positioned(
                       bottom: 0,
