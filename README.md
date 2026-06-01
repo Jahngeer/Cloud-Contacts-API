@@ -12,13 +12,13 @@
 
 | 🏠 Contact Dashboard | 📝 Profile Editor |
 | :---: | :---: |
-| ![Dashboard Screen](assets/images/dashboard.png) | ![Edit Contact](assets/images/edit_contact.png) |
+| <img src="assets/images/dashboard_contacts.png" width="280" alt="Contact Dashboard Layout" /> | <img src="assets/images/edit_user.png" width="280" alt="Profile Update Manager" /> |
 
-| 🔍 Real-time Search | 💾 Offline Persistence |
+| 🔍 Real-time Search Filter | 🎨 Branded Splash Screen |
 | :---: | :---: |
-| ![Search Filter](assets/images/search.png) | ![Add Contact](assets/images/add_contact.png) |
-
+| <img src="assets/images/search_user.png" width="280" alt="Live Instant Query Filter" /> | <img src="assets/images/splash_screen.png" width="280" alt="Application Cold Start Vector Logo" /> |
 ---
+
 
 ## 🎯 Project Overview
 **Cloud Contacts API** is an application built on a core **Offline-First Architecture**. The application operates independently of active network availability; users can smoothly Create, Read, Update, and Delete (CRUD) contacts in offline mode. A background synchronization engine monitors network connectivity and executes an automatic bidirectional sync as soon as the internet connection is restored.
